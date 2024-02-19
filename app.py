@@ -1,20 +1,19 @@
-# Import the necessary libraries 
-import cv2 
-import pytesseract 
-import numpy as np
+import cv2
+import pytesseract
+import matplotlib.pyplot as plt
+# import numpy as np
 
-img = cv2.imread('./data/reading.png') 
+img_path = "./data/reading.png"
+img = cv2.imread(img_path)
+### Expected reading - "069871"
 
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
- 
-blur = cv2.GaussianBlur(gray, (5,5), 0) 
- 
-bin_img = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 31, 2)
- 
-kernel = np.ones((1, 1), np.uint8) 
-img = cv2.dilate(bin_img, kernel, iterations=1) 
-img = cv2.erode(img, kernel, iterations=1) 
+### Image preprocessing for optimization
+# gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+median = cv2.medianBlur(img, 9)
 
-text = pytesseract.image_to_string(img) 
+ret1, thresh1 = cv2.threshold(median, 100, 240, cv2.THRESH_BINARY_INV)
 
+### Extracting text from the picture and printing it
+config = r"--oem 3 --psm 9 -c tessedit_char_whitelist=0123456789"
+text = pytesseract.image_to_string(thresh1, config=config)
 print(text)
